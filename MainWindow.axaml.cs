@@ -1,9 +1,7 @@
-﻿using Avalonia.Controls;
-using Avalonia.Interactivity;  // ¡Esta línea es la que faltaba!
-using Avalonia.Threading;
-using System;
+using Avalonia.Controls; 
+using Avalonia.Interactivity;
 
-namespace AvaloniaApplication1;
+namespace OpcionesConsultorioWindow;
 
 public partial class MainWindow : Window
 {
@@ -11,5 +9,5 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
-
 }
+
