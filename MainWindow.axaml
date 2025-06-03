@@ -1,0 +1,100 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AvaloniaApplication1.MainWindow"
+        Width="800" Height="500" Title="Sistema Hospitalario">
+
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="2*"/>
+			<ColumnDefinition Width="3*"/>
+		</Grid.ColumnDefinitions>
+
+		<!-- Sección izquierda: Datos de consultorio -->
+		<StackPanel Grid.Column="0" Margin="20" Spacing="10">
+
+			<TextBlock Text="Consultorio" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+			<StackPanel Orientation="Vertical" Spacing="5">
+				<TextBlock Text="Nombre del Consultorio:"/>
+				<TextBox Name="NombreConsultorioTextBox+"/>
+			</StackPanel>
+
+			<StackPanel Orientation="Vertical" Spacing="5">
+				<TextBlock Text="Especialidad:"/>
+				<ComboBox Name="EspecialidadComboBox">
+					<ComboBoxItem Content="Pediatría"/>
+					<ComboBoxItem Content="Medicina General"/>
+					<ComboBoxItem Content="Cardiología"/>
+					<ComboBoxItem Content="Neurología"/>
+					<ComboBoxItem Content="Psicología"/>
+				</ComboBox>
+			</StackPanel>
+
+			<StackPanel Orientation="Vertical" Spacing="5">
+				<TextBlock Text="Pacientes en Cola:"/>
+				<TextBlock Name="PacientesEnColaTextBlock" Text="0" FontWeight="SemiBold"/>
+			</StackPanel>
+
+			<StackPanel Orientation="Vertical" Spacing="5">
+				<TextBlock Text="Tiempo Estimado de Atención:"/>
+				<TextBlock Name="TiempoEstimadoTextBlock" Text="0 min" FontWeight="SemiBold"/>
+			</StackPanel>
+
+			<Button Name="SimularButton" Content="Simular Atención" HorizontalAlignment="Center" Width="150"/>
+
+		</StackPanel>
+
+		<!-- Sección derecha -->
+		<StackPanel Grid.Column="1" Margin="20" Spacing="10">
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<ComboBox Name="ConsultoriosComboBox" Width="200">
+					<ComboBoxItem Content="Consultorio 1"/>
+					<ComboBoxItem Content="Consultorio 2"/>
+					<ComboBoxItem Content="Consultorio 3"/>
+					<ComboBoxItem Content="Consultorio 4"/>
+					<ComboBoxItem Content="Consultorio 5"/>
+					<!-- Hasta 15 consultorios -->
+				</ComboBox>
+				<Button Content="Opciones de Consultorio" Width="180"/>
+			</StackPanel>
+
+			<!-- Matriz visual de 5x5 con cuadros -->
+			<UniformGrid Rows="5" Columns="5" Margin="0,10,0,0">
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+
+				<!-- Repite según la matriz -->
+				<!-- 25 bloques de 5x5 en total -->
+				<!-- Puedes duplicar esto hasta completar los 25 cuadros -->
+				<!-- Se repite abajo -->
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+				<Border BorderBrush="Gray" BorderThickness="1" Background="#EEE" Width="50" Height="50"/>
+			</UniformGrid>
+		</StackPanel>
+	</Grid>
+</Window>
+ 
