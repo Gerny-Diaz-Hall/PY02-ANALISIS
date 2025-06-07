@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:PY02.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
+             x:Class="PY02.Views.MainView"
+             x:DataType="vm:MainViewModel"
+             Background="#F0F4F8">
+
+	<Grid>
+		<Border Width="500" Height="250"
+                Background="White"
+                CornerRadius="16"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                BoxShadow="0 8 24 0 #00000022"
+                Padding="20">
+
+			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+				<TextBlock Text="Espere aquí, pronto le atenderemos"
+                           FontSize="26"
+                           FontWeight="SemiBold"
+                           Foreground="#102A43"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"/>
+
+				<Button x:Name="IrAlHospitalButton"
+					    Content="Ir al Hospital"
+                        HorizontalAlignment="Center"
+                        Padding="40,14"
+                        FontSize="18"
+                        FontWeight="Bold"
+                        CornerRadius="24"
+                        Background="#0072CE"
+                        Foreground="White">
+					<Button.Styles>
+						<Style Selector="Button:pointerover /template/ ContentPresenter">
+							<Setter Property="Background" Value="#005EB8"/>
+						</Style>
+						<Style Selector="Button:pressed /template/ ContentPresenter">
+							<Setter Property="Background" Value="#004A94"/>
+						</Style>
+					</Button.Styles>
+				</Button>
+			</StackPanel>
+
+		</Border>
+	</Grid>
+</UserControl>
