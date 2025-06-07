@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-
 using PY02.ViewModels;
 using PY02.Views;
 
@@ -22,6 +21,8 @@ public partial class App : Application
             {
                 DataContext = new MainViewModel()
             };
+
+            desktop.MainWindow.WindowState = Avalonia.Controls.WindowState.FullScreen;
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {

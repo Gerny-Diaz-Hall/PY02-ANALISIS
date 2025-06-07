@@ -2,9 +2,109 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="PY02.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+	
+	<Application.Styles>
+		<FluentTheme />
+		<Style Selector="Button.BotonNavegacion">
+			<Setter Property="Width" Value="192"/>
+			<Setter Property="Height" Value="56"/>
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="Foreground" Value="Black"/>
+			<Setter Property="CornerRadius" Value="16"/>
+			<Setter Property="FontSize" Value="20"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
 
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
+			<Setter Property="Transitions">
+				<Transitions>
+					<BrushTransition Property="Foreground" Duration="0:0:0.35"/>
+				</Transitions>
+			</Setter>
+
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Name="plantillaRaiz"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderBrush="#cccccc"
+                            BorderThickness="2"
+                            ClipToBounds="True">
+						<Grid>
+							<Border Name="bordeAnimado"
+                                    Background="#4ade80"
+                                    Width="44"
+                                    HorizontalAlignment="Left"
+                                    CornerRadius="14"
+                                    Height="44"
+                                    VerticalAlignment="Center"
+                                    Margin="4,0,0,0">
+								<Border.Transitions>
+									<Transitions>
+										<DoubleTransition Property="Width" Duration="0:0:0.55" Easing="CubicEaseOut"/>
+										<CornerRadiusTransition Property="CornerRadius" Duration="0:0:0.55" Easing="CubicEaseOut"/>
+									</Transitions>
+								</Border.Transitions>
+							</Border>
+
+							<Grid>
+								<PathIcon Name="icono"
+                                          Foreground="Black"
+                                          Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
+                                          Width="24" Height="24"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"
+                                          Margin="14,0,0,0">
+									<PathIcon.Transitions>
+										<Transitions>
+											<ThicknessTransition Property="Margin" Duration="0:0:0.55" Easing="CubicEaseOut"/>
+										</Transitions>
+									</PathIcon.Transitions>
+								</PathIcon>
+
+								<ContentPresenter Name="texto"
+                                                  Content="{TemplateBinding Content}"
+                                                  Foreground="{TemplateBinding Foreground}"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Left"
+                                                  Margin="56,0,0,0">
+									<ContentPresenter.Transitions>
+										<Transitions>
+											<DoubleTransition Property="Opacity" Duration="0:0:0.55" Easing="CubicEaseOut"/>
+										</Transitions>
+									</ContentPresenter.Transitions>
+								</ContentPresenter>
+							</Grid>
+						</Grid>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+
+		<Style Selector="Button.BotonNavegacion:pointerover">
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector="Button.BotonNavegacion:pointerover /template/ Border#bordeAnimado">
+			<Setter Property="Width" Value="180"/>
+			<Setter Property="CornerRadius" Value="12"/>
+		</Style>
+		<Style Selector="Button.BotonNavegacion:pointerover /template/ ContentPresenter#texto">
+			<Setter Property="Opacity" Value="0"/>
+		</Style>
+		<Style Selector="Button.BotonNavegacion:pointerover /template/ PathIcon#icono">
+			<Setter Property="Margin" Value="84,0,0,0"/>
+		</Style>
+
+		<Style Selector="Button.BotonNavegacion:not(:pointerover)">
+			<Setter Property="Foreground" Value="Black"/>
+		</Style>
+		<Style Selector="Button.BotonNavegacion:not(:pointerover) /template/ Border#bordeAnimado">
+			<Setter Property="Width" Value="44"/>
+			<Setter Property="CornerRadius" Value="12"/>
+		</Style>
+		<Style Selector="Button.BotonNavegacion:not(:pointerover) /template/ ContentPresenter#texto">
+			<Setter Property="Opacity" Value="1"/>
+		</Style>
+		<Style Selector="Button.BotonNavegacion:not(:pointerover) /template/ PathIcon#icono">
+			<Setter Property="Margin" Value="13,0,0,0"/>
+		</Style>
+	</Application.Styles>
 </Application>
