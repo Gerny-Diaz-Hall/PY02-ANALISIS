@@ -5,10 +5,10 @@
              VerticalAlignment="Stretch"
              Background="White">
 
-        <TextBlock Text="Bienvenido al hospital"
-                   VerticalAlignment="Center"
-                   HorizontalAlignment="Center"
-                   FontSize="24"
-                   Foreground="Black"/>
+	<TextBlock Text="Bienvenido al hospital"
+			   VerticalAlignment="Center"
+			   HorizontalAlignment="Center"
+			   FontSize="24"
+			   Foreground="Black"/>
 
 </UserControl>
