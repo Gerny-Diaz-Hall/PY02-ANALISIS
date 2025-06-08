@@ -1,14 +1,51 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="PY02.Views.HospitalView"
-             HorizontalAlignment="Stretch"
-             VerticalAlignment="Stretch"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:PY02.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PY02.Views.HospitalWindow"
+             x:DataType="vm:HospitalViewModel"
              Background="White">
 
-	<TextBlock Text="Bienvenido al hospital"
-			   VerticalAlignment="Center"
-			   HorizontalAlignment="Center"
-			   FontSize="24"
-			   Foreground="Black"/>
+	<Grid>
 
+		<Button VerticalAlignment="Top"
+				HorizontalAlignment="Right"
+				Content="+"
+				FontSize="20"
+				FontWeight="Bold"
+				Width="40"
+				Height="40"
+				CornerRadius="20"
+				Command="{Binding AddOfficeCommand}"
+				IsEnabled="{Binding CanAddOffice}"
+				Background="#E0E0E0"
+				Foreground="Black"
+				Margin="0,20,20,0"/>
+
+		<Grid Margin="20,100,20,20">
+			<ItemsControl ItemsSource="{Binding Offices}" VerticalAlignment="Top">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<UniformGrid Rows="1" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Border Background="#F0F0F0"
+								BorderBrush="#CCCCCC"
+								BorderThickness="1"
+								CornerRadius="4"
+								Height="120"
+								Margin="2">
+							<Image Source="/Assets/descarga.png" />
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</Grid>
+
+	</Grid>
 </UserControl>
