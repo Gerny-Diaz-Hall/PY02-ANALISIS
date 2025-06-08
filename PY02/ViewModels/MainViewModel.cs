@@ -7,13 +7,13 @@ using System.Windows.Input;
 
 namespace PY02.ViewModels {
     public class MainViewModel : ViewModelBase {
-        private Control _currentView;
+        private Control _currentView = null!;
         public Control CurrentView {
             get => _currentView;
             private set => this.RaiseAndSetIfChanged(ref _currentView, value);
         }
 
-        private string _navButtonText;
+        private string _navButtonText = null!;
         public string NavButtonText {
             get => _navButtonText;
             private set => this.RaiseAndSetIfChanged(ref _navButtonText, value);
