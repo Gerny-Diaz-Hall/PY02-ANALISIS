@@ -1,34 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using PY02.ViewModels;
+using ReactiveUI;
+using System.Collections.ObjectModel;
 
-public class Specialty { /* ... */ }
+public class Office : ReactiveObject {
+    private bool _open = true;
 
-public class Office {
-    public int Id { get; set; }
-    public List<string> Specialties { get; set; }
-    public bool Open { get; set; }
+    public int Id { get; }
 
-    // NUEVA PROPIEDAD: para que el {Binding DisplayName} funcione
     public string DisplayName => $"Consultorio #{Id}";
+
+    public ObservableCollection<string> Specialties { get; }
+    public ObservableCollection<Patient> PatientQueue { get; }
+
+    public HospitalViewModel? RootViewModel { get; set; }
+
+    public bool Open {
+        get => _open;
+        set => this.RaiseAndSetIfChanged(ref _open, value);
+    }
 
     public Office(int id) {
         Id = id;
-        Specialties = new List<string>();
-        Open = true;
+        Specialties = new ObservableCollection<string>();
+        PatientQueue = new ObservableCollection<Patient>();
+
+        // Requisito: Todo consultorio inicia con al menos una especialidad
+        AddSpecialty("Medicina General");
     }
 
-    public Office(int id, List<string> schedule, List<string> specialties, bool open) {
-        Id = id + 1;
-        Specialties = specialties;
-        Open = open;
+    // --- Métodos de gestión de especialidades ---
+
+    public void AddSpecialty(string specialty) {
+        if (!string.IsNullOrWhiteSpace(specialty) && !Specialties.Contains(specialty)) {
+            Specialties.Add(specialty);
+        }
     }
 
-    public bool changeStatus() {
-        Open = !Open; // Forma simplificada de cambiar el booleano
-        return Open;
-    }
-
-    public bool getStatus() {
-        return Open;
+    public void RemoveSpecialty(string specialty) {
+        // Requisito: siempre debe haber al menos una especialidad
+        if (Specialties.Count > 1 && Specialties.Contains(specialty)) {
+            Specialties.Remove(specialty);
+        }
     }
 }

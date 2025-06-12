@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public class Specialty
 {
@@ -30,12 +31,12 @@ public class Specialty
 
     public string getHorarios()
     {
+        if (Horarios.Count == 0)
         {
-            if (Horarios.Count == 0)
-            {
-                return "No hay horarios disponibles para esta especialidad";
-
-            }
-            return string.Join(",", Horarios);
+            return "No hay horarios disponibles para esta especialidad";
 
         }
+        return string.Join(",", Horarios);
+
+    }
+}
