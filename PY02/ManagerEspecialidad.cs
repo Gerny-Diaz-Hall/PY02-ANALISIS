@@ -11,7 +11,7 @@ namespace PY02 {
         /// </summary>
         /// <param name="filePath">La ruta del archivo. Por defecto es 'specialties.txt'.</param>
         /// <returns>Una lista de strings con las especialidades.</returns>
-        public static List<string> LoadSpecialties(string filePath = "specialties.txt") {
+        public static List<string> LoadSpecialties(string filePath = "Especialidades.txt") {
             var specialties = new List<string>();
             try {
                 // Asegurarse de que el archivo exista antes de intentar leerlo.

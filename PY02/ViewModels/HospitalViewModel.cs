@@ -30,6 +30,22 @@ namespace PY02.ViewModels {
             set => this.RaiseAndSetIfChanged(ref _newPatientPriority, value);
         }
 
+        public Dictionary<string, int> PriorityLevels { get; } = new Dictionary<string, int> {
+            { "Leve", 1 },
+            { "Media", 2 },
+            { "Extrema", 3 }
+        };
+
+        private string _selectedPriorityLabel = "Leve";
+        public string SelectedPriorityLabel {
+            get => _selectedPriorityLabel;
+            set {
+                this.RaiseAndSetIfChanged(ref _selectedPriorityLabel, value);
+                // Al cambiar el texto, también se cambia el número
+                NewPatientPriority = PriorityLevels[value];
+            }
+        }
+
         // --- Colecciones principales ---
         public ObservableCollection<Office> Offices { get; }
         public ObservableCollection<Patient> GeneralWaitingList { get; }
