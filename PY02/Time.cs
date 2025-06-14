@@ -18,7 +18,7 @@ public class Time {
         days = 0;
         hours = 0;
         mins = 0;
-        timer = new Timer(1000); // 1000 ms = 1 sec
+        timer = new Timer(SecsPerMins * 1000); // 7000 ms = 7 sec
         timer.Elapsed += AdvanceTime;
     }
 
@@ -48,6 +48,35 @@ public class Time {
 
         OnChangeTime?.Invoke(ToString());
     }
+
+// Timer per Patient that returns a Action to stop timer if needed
+public Action StartPatientTimer(Action<string> onTick) {
+    int pDays = 0;
+    intpHours = 0;
+    int pMins = 0;
+ 
+    Timer patientTimer = new Timer(SecsPerMins * 1000);
+    patientTimer.Elapsed += (s, e) =>
+    {
+        pMins++;
+
+        if (pMins >= MinsPerHours) {
+            pMins = 0;
+            pHours++;
+
+            if (pHours >= HoursPerDays) {
+                pHours = 0;
+                pDays++;
+            }
+        }
+        /Notification of time
+        onTicks?.Invoke($"{pDays}d {pHours:D2}:{pMins:D2}");
+    }
+    patientTimer.Start();
+
+    //Action tp stop Timer when needed
+    return () => patient.Stop();
+}
 
     // formato militar
     public override string ToString() {
