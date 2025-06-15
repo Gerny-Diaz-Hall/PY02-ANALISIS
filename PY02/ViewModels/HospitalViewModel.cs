@@ -3,138 +3,160 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Windows.Input;
 
 namespace PY02.ViewModels {
     public class HospitalViewModel : ViewModelBase {
-        private const int MaxOffices = 15;
-        private int _nextOfficeId = 1;
-        private int _nextPatientId = 1;
+        private const int MaximoConsultorios = 15;
+        private int _siguienteIdConsultorio = 1;
+        private int _siguienteIdPaciente = 1;
 
-        // --- Propiedades del formulario de paciente ---
-        private string _newPatientName = "";
-        public string NewPatientName {
-            get => _newPatientName;
-            set => this.RaiseAndSetIfChanged(ref _newPatientName, value);
+        // --- Formulario del paciente ---
+        private string _nombreNuevoPaciente = "";
+        public string NombreNuevoPaciente {
+            get => _nombreNuevoPaciente;
+            set => this.RaiseAndSetIfChanged(ref _nombreNuevoPaciente, value);
         }
 
-        private string _newPatientSpecialty = "";
-        public string NewPatientSpecialty {
-            get => _newPatientSpecialty;
-            set => this.RaiseAndSetIfChanged(ref _newPatientSpecialty, value);
+        public ObservableCollection<PacienteEspecialidad> EspecialidadesSeleccionadas { get; } = new();
+
+        private string _especialidadTemporal = "";
+        public string EspecialidadTemporal {
+            get => _especialidadTemporal;
+            set => this.RaiseAndSetIfChanged(ref _especialidadTemporal, value);
         }
 
-        private int _newPatientPriority = 1;
-        public int NewPatientPriority {
-            get => _newPatientPriority;
-            set => this.RaiseAndSetIfChanged(ref _newPatientPriority, value);
+        private string _prioridadTemporal = "Leve";
+        public string PrioridadTemporal {
+            get => _prioridadTemporal;
+            set => this.RaiseAndSetIfChanged(ref _prioridadTemporal, value);
         }
 
-        public Dictionary<string, int> PriorityLevels { get; } = new Dictionary<string, int> {
+        public Dictionary<string, int> NivelesPrioridad { get; } = new()
+        {
             { "Leve", 1 },
             { "Media", 2 },
             { "Extrema", 3 }
         };
 
-        private string _selectedPriorityLabel = "Leve";
-        public string SelectedPriorityLabel {
-            get => _selectedPriorityLabel;
-            set {
-                this.RaiseAndSetIfChanged(ref _selectedPriorityLabel, value);
-                // Al cambiar el texto, también se cambia el número
-                NewPatientPriority = PriorityLevels[value];
-            }
-        }
-
         // --- Colecciones principales ---
-        public ObservableCollection<Office> Offices { get; }
-        public ObservableCollection<Patient> GeneralWaitingList { get; }
-        public ObservableCollection<string> AllAvailableSpecialties { get; }
+        public ObservableCollection<Office> Consultorios { get; } = new();
+        public ObservableCollection<Patient> ListaEsperaGeneral { get; } = new();
+        public ObservableCollection<string> TodasLasEspecialidades { get; } = new(ManagerEspecialidad.LoadSpecialties());
+
+        // Pacientes seleccionados mediante checkbox
+        public ObservableCollection<Patient> PacientesSeleccionados { get; } = new();
 
         // --- Comandos ---
-        public ICommand AddOfficeCommand { get; }
-        public ICommand AddPatientCommand { get; }
-        public ICommand DeleteOfficeCommand { get; }
-        public ICommand AddSpecialtyCommand { get; }
-        public ICommand RemoveSpecialtyCommand { get; }
+        public ICommand ComandoAgregarConsultorio { get; }
+        public ICommand ComandoAgregarPaciente { get; }
+        public ICommand ComandoEliminarConsultorio { get; }
+        public ICommand ComandoAgregarEspecialidadConsultorio { get; }
+        public ICommand ComandoEliminarEspecialidadConsultorio { get; }
+        public ICommand ComandoAgregarEspecialidadPaciente { get; }
+        public ICommand AsignarPacientesAConsultoriosCommand { get; }
 
-        private readonly ObservableAsPropertyHelper<bool> _canAddOffice;
-        public bool CanAddOffice => _canAddOffice.Value;
+        private readonly ObservableAsPropertyHelper<bool> _puedeAgregarConsultorio;
+        public bool PuedeAgregarConsultorio => _puedeAgregarConsultorio.Value;
 
         public HospitalViewModel() {
-            Offices = new ObservableCollection<Office>();
-            GeneralWaitingList = new ObservableCollection<Patient>();
-            AllAvailableSpecialties = new ObservableCollection<string>(ManagerEspecialidad.LoadSpecialties());
+            var puedeAgregar = this.WhenAnyValue(x => x.Consultorios.Count, count => count < MaximoConsultorios);
+            _puedeAgregarConsultorio = puedeAgregar.ToProperty(this, x => x.PuedeAgregarConsultorio);
+            ComandoAgregarConsultorio = ReactiveCommand.Create(AgregarConsultorio, puedeAgregar);
 
-            var canAddExecute = this.WhenAnyValue(x => x.Offices.Count, count => count < MaxOffices);
-            _canAddOffice = canAddExecute.ToProperty(this, x => x.CanAddOffice);
-            AddOfficeCommand = ReactiveCommand.Create(AddOffice, canAddExecute);
-
-            var canAddPatient = this.WhenAnyValue(
-                x => x.NewPatientName,
-                x => x.NewPatientSpecialty,
-                (name, specialty) => !string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(specialty)
+            var puedeAgregarPaciente = this.WhenAnyValue(
+                x => x.NombreNuevoPaciente,
+                x => x.EspecialidadesSeleccionadas.Count,
+                (nombre, cantidad) => !string.IsNullOrWhiteSpace(nombre) && cantidad > 0
             );
-            AddPatientCommand = ReactiveCommand.Create(AddNewPatient, canAddPatient);
+            ComandoAgregarPaciente = ReactiveCommand.Create(AgregarNuevoPaciente, puedeAgregarPaciente);
 
-            DeleteOfficeCommand = ReactiveCommand.Create<Office>(DeleteOffice);
-            AddSpecialtyCommand = ReactiveCommand.Create<Tuple<Office, string>>(param => AddSpecialtyToOffice(param.Item1, param.Item2));
-            RemoveSpecialtyCommand = ReactiveCommand.Create<Tuple<Office, string>>(param => RemoveSpecialtyFromOffice(param.Item1, param.Item2));
+            ComandoEliminarConsultorio = ReactiveCommand.Create<Office>(EliminarConsultorio);
+            ComandoAgregarEspecialidadConsultorio = ReactiveCommand.Create<Tuple<Office, string>>(param => AgregarEspecialidadAConsultorio(param.Item1, param.Item2));
+            ComandoEliminarEspecialidadConsultorio = ReactiveCommand.Create<Tuple<Office, string>>(param => EliminarEspecialidadDeConsultorio(param.Item1, param.Item2));
+            ComandoAgregarEspecialidadPaciente = ReactiveCommand.Create(AgregarEspecialidadTemporal);
+            AsignarPacientesAConsultoriosCommand = ReactiveCommand.Create(AsignarPacientesAConsultorios);
 
-            // Se inicia con un consultorio por defecto
-            AddOffice();
+            AgregarConsultorio();
         }
 
         // --- Consultorios ---
-        private void AddOffice() {
-            if (Offices.Count < MaxOffices) {
-                Offices.Add(new Office(_nextOfficeId++));
+        private void AgregarConsultorio() {
+            if (Consultorios.Count < MaximoConsultorios) {
+                Consultorios.Add(new Office(_siguienteIdConsultorio++));
             }
         }
 
-        private void DeleteOffice(Office office) {
-            if (office != null && Offices.Contains(office) && Offices.Count > 1) {
-                Offices.Remove(office);
+        private void EliminarConsultorio(Office consultorio) {
+            if (consultorio != null && Consultorios.Contains(consultorio) && Consultorios.Count > 1) {
+                Consultorios.Remove(consultorio);
             }
         }
 
-        private void AddSpecialtyToOffice(Office office, string specialty) {
-            if (office != null && !string.IsNullOrWhiteSpace(specialty)) {
-                office.AddSpecialty(specialty);
+        private void AgregarEspecialidadAConsultorio(Office consultorio, string especialidad) {
+            if (consultorio != null && !string.IsNullOrWhiteSpace(especialidad)) {
+                consultorio.AddSpecialty(especialidad);
             }
         }
 
-        private void RemoveSpecialtyFromOffice(Office office, string specialty) {
-            if (office != null && !string.IsNullOrWhiteSpace(specialty)) {
-                office.RemoveSpecialty(specialty);
+        private void EliminarEspecialidadDeConsultorio(Office consultorio, string especialidad) {
+            if (consultorio != null && !string.IsNullOrWhiteSpace(especialidad)) {
+                consultorio.RemoveSpecialty(especialidad);
             }
         }
 
-        // --- Pacientes ---
-        private void AddNewPatient() {
-            var newPatient = new Patient {
-                Id = $"P-{_nextPatientId++}",
-                Name = this.NewPatientName,
-                SpecialtyRequired = this.NewPatientSpecialty,
-                Priority = this.NewPatientPriority,
+        // --- Especialidades del paciente ---
+        private void AgregarEspecialidadTemporal() {
+            if (!string.IsNullOrWhiteSpace(EspecialidadTemporal) && !EspecialidadesSeleccionadas.Any(e => e.NombreEspecialidad == EspecialidadTemporal)) {
+                EspecialidadesSeleccionadas.Add(new PacienteEspecialidad {
+                    NombreEspecialidad = EspecialidadTemporal,
+                    Prioridad = NivelesPrioridad[PrioridadTemporal]
+                });
+            }
+        }
+
+        // --- Agregar paciente ---
+        private void AgregarNuevoPaciente() {
+            var nuevo = new Patient {
+                Id = $"P-{_siguienteIdPaciente++}",
+                Name = this.NombreNuevoPaciente,
+                Especialidades = EspecialidadesSeleccionadas.ToList(),
                 ArrivalHour = DateTime.Now
             };
 
-            var bestOffice = Offices
-                .Where(o => o.Open && o.Specialties.Contains(newPatient.SpecialtyRequired))
-                .OrderBy(o => o.PatientQueue.Count)
-                .FirstOrDefault();
+            ListaEsperaGeneral.Add(nuevo);
 
-            if (bestOffice != null) {
-                bestOffice.PatientQueue.Add(newPatient);
-            } else {
-                GeneralWaitingList.Add(newPatient);
+            // Limpiar formulario
+            NombreNuevoPaciente = "";
+            EspecialidadesSeleccionadas.Clear();
+            EspecialidadTemporal = "";
+            PrioridadTemporal = "Leve";
+        }
+
+        // --- Asignar pacientes seleccionados a consultorios ---
+        private void AsignarPacientesAConsultorios() {
+            var asignados = new List<Patient>();
+
+            foreach (var paciente in PacientesSeleccionados) {
+                var especialidadesPaciente = paciente.Especialidades.Select(e => e.NombreEspecialidad).ToList();
+
+                var consultorio = Consultorios
+                    .Where(c => c.Open)
+                    .FirstOrDefault(c => c.Specialties.Any(especialidadesPaciente.Contains));
+
+                if (consultorio != null) {
+                    consultorio.PatientQueue.Add(paciente);
+                    asignados.Add(paciente);
+                }
             }
 
-            // Reset formulario
-            NewPatientName = "";
-            NewPatientSpecialty = "";
-            NewPatientPriority = 1;
+            foreach (var p in asignados) {
+                ListaEsperaGeneral.Remove(p);
+            }
+
+            PacientesSeleccionados.Clear();
         }
     }
 }

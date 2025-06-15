@@ -4,35 +4,29 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:PY02.ViewModels"
-    xmlns:converters="clr-namespace:PY02"
-    mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+    xmlns:converters="using:PY02"
+    mc:Ignorable="d"
+    d:DesignWidth="1200"
+    d:DesignHeight="800"
     x:Class="PY02.Views.HospitalWindow"
     x:DataType="vm:HospitalViewModel"
     Background="#F4F7FC">
 
 	<UserControl.Resources>
 		<converters:TupleConverter x:Key="TupleConverter" />
-
-		<!-- Recursos de color para ToggleSwitch -->
-		<!-- Estado OFF (desactivado) -->
 		<SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#C62828" />
 		<SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="#C62828" />
 		<SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#800a0a" />
 		<SolidColorBrush x:Key="ToggleSwitchStrokeOffPointerOver" Color="#800a0a" />
-
-		<!-- Estado ON (activado) -->
 		<SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#2E7D32" />
 		<SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="#2E7D32" />
 		<SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#a7f26d" />
 		<SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="#a7f26d" />
-
-		<!-- Knob (botón deslizante) -->
 		<SolidColorBrush x:Key="ToggleSwitchKnobFill" Color="White" />
 		<SolidColorBrush x:Key="ToggleSwitchKnobFillPointerOver" Color="White" />
 	</UserControl.Resources>
-	
+
 	<UserControl.Styles>
-		<!-- Texto y fondo base -->
 		<Style Selector="ToggleSwitch">
 			<Setter Property="OnContent" Value="Abierto" />
 			<Setter Property="OffContent" Value="Cerrado" />
@@ -40,140 +34,64 @@
 			<Setter Property="Background" Value="Transparent" />
 		</Style>
 	</UserControl.Styles>
-	
-	<Grid Margin="0,60,0,0"
-		  ColumnDefinitions="300, *"
-		  RowDefinitions="Auto, *">
 
-		<Border
-			Grid.Row="0"
-			Grid.Column="0"
-			Grid.RowSpan="2"
-			Background="White"
-			CornerRadius="8"
-			Margin="15"
-			BoxShadow="0 4 15 0 #D0D0D0">
-			<StackPanel
-				Margin="10"
-				Spacing="10">
-				<TextBlock
-					Text="Registrar Paciente"
-					FontSize="18"
-					FontWeight="Bold"
-					Margin="5"/>
+	<Grid Margin="0,60,0,0" ColumnDefinitions="300, *" RowDefinitions="Auto, *">
 
-				<TextBox
-					Text="{Binding NewPatientName, Mode=TwoWay}"
-					Watermark="Nombre del paciente"
-					Margin="5,0"/>
+		<Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="White" CornerRadius="8" Margin="15" BoxShadow="0 4 15 0 #D0D0D0">
+			<StackPanel Margin="10" Spacing="10">
+				<TextBlock Text="Registrar Paciente" FontSize="18" FontWeight="Bold" Margin="5"/>
+				<TextBox Text="{Binding NombreNuevoPaciente, Mode=TwoWay}" Watermark="Nombre del paciente" Margin="5,0"/>
 
-				<ComboBox
-					ItemsSource="{Binding AllAvailableSpecialties}"
-					SelectedItem="{Binding NewPatientSpecialty, Mode=TwoWay}"
-					PlaceholderText="Elija la especialidad"
-					Margin="5,0"/>
+				<ComboBox ItemsSource="{Binding TodasLasEspecialidades}" SelectedItem="{Binding EspecialidadTemporal}" PlaceholderText="Elija una especialidad" Margin="5,0"/>
 
-				<TextBlock
-					Text="Elija una Prioridad:"
-					Margin="5,10,5,0"
-					Foreground="#333"/>
+				<TextBlock Text="Elija una Prioridad:" Margin="5,10,5,0" Foreground="#333"/>
+				<ComboBox ItemsSource="{Binding NivelesPrioridad.Keys}" SelectedItem="{Binding PrioridadTemporal}" Margin="5,0" PlaceholderText="Seleccione prioridad"/>
 
-				<ComboBox
-					ItemsSource="{Binding PriorityLevels.Keys}"
-					SelectedItem="{Binding SelectedPriorityLabel, Mode=TwoWay}"
-					Margin="5,0"
-					PlaceholderText="Seleccione prioridad" />
+				<Button Content="Agregar Especialidad" Command="{Binding ComandoAgregarEspecialidadPaciente}" Background="#17A2B8" Foreground="White" CornerRadius="4" Margin="5,5,5,0" />
 
-				<Button
-					Command="{Binding AddPatientCommand}"
-					Content="Agregar a Lista de Espera"
-					HorizontalAlignment="Stretch"
-					Padding="20,10"
-					FontSize="14"
-					FontWeight="SemiBold"
-					CornerRadius="4"
-					Background="#0072CE"
-					Foreground="White"
-					Margin="5,15,5,5">
-
-					<Button.Styles>
-						<Style Selector="Button:pointerover /template/ ContentPresenter">
-							<Setter Property="Background" Value="#005EB8"/>
-						</Style>
-						<Style Selector="Button:pressed /template/ ContentPresenter">
-							<Setter Property="Background" Value="#004A94"/>
-						</Style>
-					</Button.Styles>
-				</Button>
-
-				<TextBlock
-					Text="Lista de Espera General"
-					FontSize="18"
-					FontWeight="Bold"
-					Margin="5,25,5,5"/>
-
-				<ListBox
-					Name="GeneralWaitingList"
-					ItemsSource="{Binding GeneralWaitingList}"
-					Height="400" Margin="5,0"
-					Background="Transparent">
-
+				<ListBox ItemsSource="{Binding EspecialidadesSeleccionadas}" Height="100" Margin="5,5,5,0" Background="#F8F9FA">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
-							<Border
-								Padding="10,8"
-								CornerRadius="4">
+							<StackPanel Orientation="Horizontal" Spacing="5" Margin="5">
+								<TextBlock Text="{Binding NombreEspecialidad}" FontWeight="Bold" />
+								<TextBlock Text=" (" Foreground="Gray"/>
+								<TextBlock Text="{Binding Prioridad}" Foreground="Gray"/>
+								<TextBlock Text=")" Foreground="Gray"/>
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
 
-								<StackPanel
-									Orientation="Horizontal"
-									Spacing="10">
+				<Button Command="{Binding ComandoAgregarPaciente}" Content="Agregar a Lista de Espera" HorizontalAlignment="Stretch" Padding="20,10" FontSize="14" FontWeight="SemiBold" CornerRadius="4" Background="#0072CE" Foreground="White" Margin="5,15,5,5"/>
 
-									<TextBlock
-										Text="{Binding Name}"
-										FontWeight="SemiBold"/>
+				<Button Content="Asignar seleccionados a consultorios" Command="{Binding AsignarPacientesAConsultoriosCommand}" Margin="5,10,5,5" Background="#28a745" Foreground="White" CornerRadius="4"/>
 
-									<TextBlock
-										Text="{Binding SpecialtyRequired}"
-										Foreground="Gray"/>
-
+				<TextBlock Text="Lista de Espera General" FontSize="18" FontWeight="Bold" Margin="5,25,5,5"/>
+				<ListBox ItemsSource="{Binding ListaEsperaGeneral}" Height="400" Margin="5,0" Background="Transparent">
+					<ListBox.ItemTemplate>
+						<DataTemplate x:DataType="converters:Patient">
+							<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+								<CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+								<StackPanel>
+									<TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+									<ItemsControl ItemsSource="{Binding Especialidades}">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding NombreEspecialidad}" FontSize="11" Foreground="Gray"/>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
 								</StackPanel>
-							</Border>
+							</StackPanel>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 				</ListBox>
 			</StackPanel>
 		</Border>
 
-		<StackPanel
-			Grid.Row="0"
-			Grid.Column="1"
-			Orientation="Horizontal"
-			HorizontalAlignment="Right"
-			Margin="20,10">
-
-			<TextBlock
-				Text="Estado de Consultorios"
-				FontSize="24"
-				FontWeight="Bold"
-				VerticalAlignment="Center"
-				Foreground="#333"/>
-
-			<Button
-				Command="{Binding AddOfficeCommand}"
-				IsEnabled="{Binding CanAddOffice}"
-				Content="+"
-				FontSize="24"
-				FontWeight="Bold"
-				Width="40"
-				Height="40"
-				CornerRadius="20"
-				Background="#0072CE"
-				Foreground="White"
-				BorderThickness="0"
-				HorizontalContentAlignment="Center"
-				VerticalContentAlignment="Center"
-				Margin="20,0,15,0">
-
+		<StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,10">
+			<TextBlock Text="Estado de Consultorios" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Foreground="#333"/>
+			<Button Command="{Binding ComandoAgregarConsultorio}" IsEnabled="{Binding PuedeAgregarConsultorio}" Content="+" FontSize="24" FontWeight="Bold" Width="40" Height="40" CornerRadius="20" Background="#0072CE" Foreground="White" BorderThickness="0" Margin="20,0,15,0">
 				<Button.Styles>
 					<Style Selector="Button:pointerover /template/ ContentPresenter">
 						<Setter Property="Background" Value="#005EB8"/>
@@ -183,98 +101,48 @@
 					</Style>
 				</Button.Styles>
 			</Button>
-
 		</StackPanel>
 
-		<ScrollViewer
-			Grid.Row="1"
-			Grid.Column="1">
-
-			<ItemsControl
-				ItemsSource="{Binding Offices}">
+		<ScrollViewer Grid.Row="1" Grid.Column="1">
+			<ItemsControl ItemsSource="{Binding Consultorios}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<WrapPanel />
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
 				<ItemsControl.ItemTemplate>
-					<DataTemplate>
-						<Border
-							BorderBrush="#E1E1E1"
-							BorderThickness="1"
-							CornerRadius="8" Margin="10"
-							Padding="15" MinWidth="320"
-							Background="White"
-							BoxShadow="0 2 8 0 #E8E8E8">
-							<StackPanel
-								Spacing="8">
-								<TextBlock
-									Text="{Binding DisplayName}"
-									FontSize="16"
-									FontWeight="Bold"
-									Foreground="#333"/>
-								<ToggleSwitch
-									IsChecked="{Binding Open, Mode=TwoWay}"
-									OnContent="Abierto"
-									OffContent="Cerrado"/>
-								<TextBlock
-									Text="Especialidades:"
-									FontWeight="SemiBold"
-									Foreground="#555"
-									Margin="0,10,0,0"/>
-								<ItemsControl
-									ItemsSource="{Binding Specialties}">
+					<DataTemplate x:DataType="converters:Office">
+						<Border BorderBrush="#E1E1E1" BorderThickness="1" CornerRadius="8" Margin="10" Padding="15" MinWidth="320" Background="White" BoxShadow="0 2 8 0 #E8E8E8">
+							<StackPanel Spacing="8">
+								<TextBlock Text="{Binding DisplayName}" FontSize="16" FontWeight="Bold" Foreground="#333"/>
+								<ToggleSwitch IsChecked="{Binding Open, Mode=TwoWay}" OnContent="Abierto" OffContent="Cerrado"/>
+								<TextBlock Text="Especialidades:" FontWeight="SemiBold" Foreground="#555" Margin="0,10,0,0"/>
+								<ItemsControl ItemsSource="{Binding Specialties}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate>
-											<Border
-												Background="#E9ECEF"
-												CornerRadius="3"
-												Padding="8,4"
-												Margin="2">
-												<TextBlock
-													Text="{Binding}"
-													FontSize="12"
-													Foreground="#495057"/>
+											<Border Background="#E9ECEF" CornerRadius="3" Padding="8,4" Margin="2">
+												<TextBlock Text="{Binding}" FontSize="12" Foreground="#495057"/>
 											</Border>
 										</DataTemplate>
 									</ItemsControl.ItemTemplate>
 									<ItemsControl.ItemsPanel>
 										<ItemsPanelTemplate>
-											<StackPanel
-												Orientation="Horizontal" />
+											<StackPanel Orientation="Horizontal" />
 										</ItemsPanelTemplate>
 									</ItemsControl.ItemsPanel>
 								</ItemsControl>
-								<TextBlock
-									Text="Cola de Atención:"
-									FontWeight="SemiBold"
-									Foreground="#555"
-									Margin="0,10,0,0"/>
-								<Border
-									MinHeight="40"
-									Background="#F8F9FA"
-									BorderBrush="#E1E1E1"
-									BorderThickness="1"
-									CornerRadius="4">
-									<ItemsControl
-										ItemsSource="{Binding PatientQueue}">
+								<TextBlock Text="Cola de Atención:" FontWeight="SemiBold" Foreground="#555" Margin="0,10,0,0"/>
+								<Border MinHeight="40" Background="#F8F9FA" BorderBrush="#E1E1E1" BorderThickness="1" CornerRadius="4">
+									<ItemsControl ItemsSource="{Binding PatientQueue}">
 										<ItemsControl.ItemsPanel>
 											<ItemsPanelTemplate>
-												<StackPanel
-													Orientation="Horizontal"
-													Margin="5" />
+												<StackPanel Orientation="Horizontal" Margin="5" />
 											</ItemsPanelTemplate>
 										</ItemsControl.ItemsPanel>
 										<ItemsControl.ItemTemplate>
-											<DataTemplate>
-												<Border
-													Background="#D1ECF1"
-													CornerRadius="3"
-													Padding="8,4"
-													Margin="3">
-													<TextBlock
-														Text="{Binding Name}"
-														Foreground="#0C5460"/>
+											<DataTemplate x:DataType="converters:Patient">
+												<Border Background="#D1ECF1" CornerRadius="3" Padding="8,4" Margin="3">
+													<TextBlock Text="{Binding Name}" Foreground="#0C5460"/>
 												</Border>
 											</DataTemplate>
 										</ItemsControl.ItemTemplate>

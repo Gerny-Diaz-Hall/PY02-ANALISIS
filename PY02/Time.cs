@@ -49,34 +49,35 @@ public class Time {
         OnChangeTime?.Invoke(ToString());
     }
 
-// Timer per Patient that returns a Action to stop timer if needed
-public Action StartPatientTimer(Action<string> onTick) {
-    int pDays = 0;
-    intpHours = 0;
-    int pMins = 0;
- 
-    Timer patientTimer = new Timer(SecsPerMins * 1000);
-    patientTimer.Elapsed += (s, e) =>
-    {
-        pMins++;
+    // Timer per Patient that returns a Action to stop timer if needed
+    public Action StartPatientTimer(Action<string> onTick) {
+        int pDays = 0;
+        int pHours = 0;
+        int pMins = 0;
 
-        if (pMins >= MinsPerHours) {
-            pMins = 0;
-            pHours++;
+        Timer patientTimer = new Timer(SecsPerMins * 1000);
+        patientTimer.Elapsed += (s, e) => {
+            pMins++;
 
-            if (pHours >= HoursPerDays) {
-                pHours = 0;
-                pDays++;
+            if (pMins >= MinsPerHours) {
+                pMins = 0;
+                pHours++;
+
+                if (pHours >= HoursPerDays) {
+                    pHours = 0;
+                    pDays++;
+                }
             }
-        }
-        /Notification of time
-        onTicks?.Invoke($"{pDays}d {pHours:D2}:{pMins:D2}");
-    }
-    patientTimer.Start();
 
-    //Action tp stop Timer when needed
-    return () => patient.Stop();
-}
+            // Notification of time
+            onTick?.Invoke($"{pDays}d {pHours:D2}:{pMins:D2}");
+        };
+
+        patientTimer.Start();
+
+        // Action to stop timer when needed
+        return () => patientTimer.Stop();
+    }
 
     // formato militar
     public override string ToString() {

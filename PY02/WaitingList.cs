@@ -1,49 +1,55 @@
 ﻿using System;
-using System.Collections.Generic; // Necesario para List<>
-using System.Linq;              // Necesario para los métodos LINQ (.Where, .OrderBy, etc.)
+using System.Collections.Generic;
+using System.Linq;
 
-public class WaitingList
+namespace PY02
 {
-    // CORRECCIÓN: Se renombró la propiedad para seguir las convenciones de C# (PascalCase).
-    // La declaración original "public < Patient > registeredPatients" era sintácticamente incorrecta.
-    public List<Patient> RegisteredPatients { get; set; }
+    /// <summary>
+    /// Representa la lista de espera general de pacientes.
+    /// </summary>
+    public class WaitingList {
+        /// <summary>
+        /// Lista de pacientes registrados en espera.
+        /// </summary>
+        public List<Patient> RegisteredPatients { get; set; }
 
-    public WaitingList()
-    {
-        // CORRECCIÓN: Se inicializó la propiedad correcta.
-        RegisteredPatients = new List<Patient>();
+        public WaitingList() {
+            RegisteredPatients = new List<Patient>();
+        }
+
+        /// <summary>
+        /// Agrega un nuevo paciente a la lista.
+        /// </summary>
+        public void AgregarPaciente(Patient paciente) {
+            RegisteredPatients.Add(paciente);
+        }
+
+        /// <summary>
+        /// Obtiene el siguiente paciente a ser atendido, según la mayor prioridad de sus especialidades.
+        /// </summary>
+        public Patient GetNextPatient() {
+            var pacienteUrgente = RegisteredPatients
+                .Where(p => p.Especialidades.Any())
+                .OrderByDescending(p => p.Especialidades.Max(e => e.Prioridad)) // Prioridad más alta primero
+                .ThenBy(p => p.ArrivalHour)
+                .FirstOrDefault();
+
+            return pacienteUrgente;
+        }
+
+        /// <summary>
+        /// Elimina un paciente que ya fue atendido.
+        /// </summary>
+        public void DeletePatient(Patient paciente) {
+            RegisteredPatients.Remove(paciente);
+        }
+
+        /// <summary>
+        /// Devuelve la lista completa de pacientes en espera.
+        /// </summary>
+        public List<Patient> VerLista() {
+            return RegisteredPatients;
+        }
     }
 
-    // Agregar paciente a la lista
-    public void AgregarPaciente(Patient patient)
-    {
-        RegisteredPatients.Add(patient);
-    }
-
-    // Obtener el siguiente paciente a ser atendido según la lógica de prioridad
-    // CORRECCIÓN: El método ahora retorna un paciente y usa la lista correcta.
-    public Patient GetNextPatient()
-    {
-        // 1. Buscar pacientes urgentes (prioridad 1, 2 o 3)
-        var urgentPatient = RegisteredPatients
-            .Where(p => p.Priority >= 1 && p.Priority <= 3)
-            .OrderBy(p => p.Priority)
-            .ThenBy(p => p.ArrivalHour)
-            .FirstOrDefault(); // Devuelve el primer paciente o null si no hay ninguno.
-        
-        return urgentPatient;
-    } // CORRECCIÓN: Se añadió la llave de cierre faltante del método.
-
-    // Eliminar paciente atendido
-    // CORRECCIÓN: Se cambió el nombre de "delatePatient" a "DeletePatient".
-    public void DeletePatient(Patient patient)
-    {
-        RegisteredPatients.Remove(patient);
-    }
-
-    // Ver lista completa
-    public List<Patient> VerLista()
-    {
-        return RegisteredPatients;
-    }
 }
