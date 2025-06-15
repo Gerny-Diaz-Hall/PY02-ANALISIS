@@ -79,7 +79,8 @@ public class Time {
         return () => patientTimer.Stop();
     }
 
-    // formato militar
+
+    // formato militar de las horas y dias
     public override string ToString() {
         return $"{days}d {hours:D2}:{mins:D2}";
     }
@@ -87,5 +88,11 @@ public class Time {
     // Obtener tiempo actual como un objeto
     public (int Days, int Hours, int Mins) getTime() {
         return (days, hours, mins);
+    }
+
+    // formato militar de la hora 
+    public string getCurrentHour()
+    {
+        return $"{hours:D2}:{mins:D2}";
     }
 }
