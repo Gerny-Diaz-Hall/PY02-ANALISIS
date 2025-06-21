@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Timers;
 
 public class Time {
@@ -18,7 +19,7 @@ public class Time {
         days = 0;
         hours = 0;
         mins = 0;
-        timer = new Timer(SecsPerMins * 1000); // 7000 ms = 7 sec
+        timer = new Timer(1000); // 7000 ms = 7 sec
         timer.Elapsed += AdvanceTime;
     }
 
@@ -79,8 +80,7 @@ public class Time {
         return () => patientTimer.Stop();
     }
 
-
-    // formato militar de las horas y dias
+    // formato militar
     public override string ToString() {
         return $"{days}d {hours:D2}:{mins:D2}";
     }
@@ -90,9 +90,31 @@ public class Time {
         return (days, hours, mins);
     }
 
-    // formato militar de la hora 
-    public string getCurrentHour()
+    private static Dictionary<string, int> EspecialidadDuraciones = new()
     {
-        return $"{hours:D2}:{mins:D2}";
+        { "Medicina General", 30 },
+        { "Cardiología", 45 },
+        { "Dermatología", 25 },
+        { "Pediatría", 40 },
+        { "Oftalmología", 35 },
+        { "Ginecología", 50 },
+        { "Psiquiatría", 60 },
+        { "Neurología", 55 },
+        { "Ortopedia", 50 },
+        { "Oncología", 70 },
+        { "Traumatología", 50 }
+    };
+
+    public static int GetTime(string specialty) {
+        if (EspecialidadDuraciones.TryGetValue(specialty, out int duracion))
+            return duracion;
+
+        return 30; // Default por si no está definida
     }
+    public static void SetTime(string specialty, int duration) {
+        if (!string.IsNullOrWhiteSpace(specialty) && duration > 0) {
+            EspecialidadDuraciones[specialty] = duration;
+        }
+    }
+
 }
