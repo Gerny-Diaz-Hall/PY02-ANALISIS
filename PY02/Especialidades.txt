@@ -1,7 +1,11 @@
-Cardiología
-Pediatría
-Neurología
-Dermatología
-Ortopedia
-Ginecología
 Medicina General
+Cardiología
+Dermatología
+Pediatría
+Oftalmología
+Ginecología
+Psiquiatría
+Neurología
+Ortopedia
+Oncología
+Traumatología

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,15 +15,13 @@ namespace PY02 {
     /// <summary>
     /// Representa un paciente que puede tener múltiples especialidades.
     /// </summary>
-    public class Patient {
-        public string Id { get; set; }              // Identificador único (ej: P-1)
-        public string Name { get; set; }            // Nombre del paciente
-        public DateTime ArrivalHour { get; set; }   // Hora de llegada
+    public class Patient : ReactiveObject {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public DateTime ArrivalHour { get; set; }
 
         public List<PacienteEspecialidad> Especialidades { get; set; } = new();
 
-        // NUEVO: permite selección manual del paciente en la UI
-        public bool IsSelected { get; set; } = false;
 
         public Patient(string id, string name, List<PacienteEspecialidad> especialidades, DateTime arrivalHour) {
             Id = id;
