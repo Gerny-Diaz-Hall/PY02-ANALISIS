@@ -1,0 +1,13 @@
+# Especialidades
+Cardiología;30
+Pediatría;20
+Neurología;40
+Dermatología;15
+
+# Pacientes
+Lucía Gomez;Cardiología;Extrema
+Carlos Ruiz;Dermatología;Leve
+Ana Fernandez;Pediatría;Media
+Diego Lopez;Cardiología;Media
+María Soto;Neurología;Extrema
+Sergio Aguero;Cardiología;Extrema

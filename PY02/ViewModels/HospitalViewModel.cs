@@ -48,13 +48,23 @@ namespace PY02.ViewModels {
         public ICommand ComandoEliminarEspecialidadConsultorio { get; }
         public ICommand ComandoAgregarEspecialidadPaciente { get; }
         public ICommand AsignarPacientesAConsultoriosCommand { get; }
+        public ICommand CargarDatosCommand { get; } // <-- NUEVO COMANDO
 
         private readonly ObservableAsPropertyHelper<bool> _puedeAgregarConsultorio;
         public bool PuedeAgregarConsultorio => _puedeAgregarConsultorio.Value;
 
+        // NUEVA PROPIEDAD PARA CONTROLAR LA HABILITACIÓN DEL BOTÓN DE ELIMINAR
+        private readonly ObservableAsPropertyHelper<bool> _puedeEliminarConsultorio;
+        public bool PuedeEliminarConsultorio => _puedeEliminarConsultorio.Value;
+
         public HospitalViewModel() {
             var puedeAgregar = this.WhenAnyValue(x => x.Consultorios.Count, count => count < MaximoConsultorios);
             _puedeAgregarConsultorio = puedeAgregar.ToProperty(this, x => x.PuedeAgregarConsultorio);
+
+            // NUEVA LÓGICA PARA ACTUALIZAR LA PROPIEDAD
+            var puedeEliminar = this.WhenAnyValue(x => x.Consultorios.Count, count => count > 1);
+            _puedeEliminarConsultorio = puedeEliminar.ToProperty(this, x => x.PuedeEliminarConsultorio);
+
             ComandoAgregarConsultorio = ReactiveCommand.Create(AgregarConsultorio, puedeAgregar);
             var puedeAgregarPaciente = this.WhenAnyValue(x => x.NombreNuevoPaciente, x => x.EspecialidadesSeleccionadas.Count, (nombre, cantidad) => !string.IsNullOrWhiteSpace(nombre) && cantidad > 0);
             ComandoAgregarPaciente = ReactiveCommand.Create(AgregarNuevoPaciente, puedeAgregarPaciente);
@@ -70,7 +80,61 @@ namespace PY02.ViewModels {
             var canStop = this.WhenAnyValue(x => x.IsSimulationRunning);
             StartSimulationCommand = ReactiveCommand.Create(StartSimulation, canStart);
             StopSimulationCommand = ReactiveCommand.Create(StopSimulation, canStop);
-            AgregarConsultorio();
+
+            CargarDatosCommand = ReactiveCommand.Create(CargarDatosDesdeArchivo); // <-- INICIALIZACIÓN DEL COMANDO
+
+            // Se limpia para no mostrar el consultorio por defecto al iniciar
+            Consultorios.Clear();
+        }
+
+        private void CargarDatosDesdeArchivo() {
+            // Detener la simulación si se está ejecutando para evitar conflictos
+            if (IsSimulationRunning) {
+                StopSimulation();
+            }
+
+            // Limpiar completamente el estado actual
+            Consultorios.Clear();
+            ListaEsperaGeneral.Clear();
+            TodasLasEspecialidades.Clear();
+            EspecialidadesSeleccionadas.Clear(); // También limpiar las especialidades del formulario
+            _siguienteIdConsultorio = 1;
+            _siguienteIdPaciente = 1;
+
+            // Cargar los datos desde el archivo. Esto poblará la lista de espera y TodasLasEspecialidades.
+            ArchivoCargador.CargarDesdeArchivo("datos_carga.txt", this);
+
+            // Obtener una lista única de las especialidades que se cargaron desde el archivo
+            var especialidadesUnicas = TodasLasEspecialidades.Distinct().ToList();
+
+            // Si el archivo no contenía especialidades (o no se encontró), la lista estará vacía.
+            if (!especialidadesUnicas.Any()) {
+                // Si no hay consultorios, agregar uno por defecto para que la UI no quede vacía.
+                if (!Consultorios.Any()) {
+                    AgregarConsultorio();
+                }
+                // No hay más que hacer si no se cargaron especialidades.
+                return;
+            }
+
+            // Crear un consultorio por cada especialidad única encontrada en el archivo.
+            foreach (var especialidad in especialidadesUnicas) {
+                // Salir del bucle si se alcanza el máximo de consultorios permitidos.
+                if (Consultorios.Count >= MaximoConsultorios) break;
+
+                // 1. Crear un nuevo consultorio. Por defecto, su constructor le añade "Medicina General".
+                var consultorio = new Office(_siguienteIdConsultorio++) { RootViewModel = this };
+
+                // 2. ¡CAMBIO CLAVE! Limpiar la especialidad por defecto que añade el constructor.
+                consultorio.Specialties.Clear();
+
+                // 3. Añadir la especialidad correcta que leímos del archivo.
+                consultorio.AddSpecialty(especialidad);
+
+                // 4. Registrar el consultorio para que reaccione a cambios y añadirlo a la lista visible.
+                SubscribeToOfficeChanges(consultorio);
+                Consultorios.Add(consultorio);
+            }
         }
 
         private void StartSimulation() { _hospitalClock.StartTimer(); _simulationTimer.Start(); IsSimulationRunning = true; }
@@ -81,7 +145,6 @@ namespace PY02.ViewModels {
             var pacientesQueTerminaron = new List<(Patient, Office)>();
             foreach (var office in Consultorios) {
                 if (office.Open && office.PacienteEnConsulta == null && office.PatientQueue.Any()) {
-                    // Al entrar a consulta, guardamos tanto el paciente como la especialidad.
                     var pacienteEnCola = office.PatientQueue.First();
                     office.PatientQueue.RemoveAt(0);
 
@@ -94,7 +157,7 @@ namespace PY02.ViewModels {
                     if (office.TiempoRestanteConsulta <= 0) {
                         pacientesQueTerminaron.Add((office.PacienteEnConsulta, office));
                         office.PacienteEnConsulta = null;
-                        office.EspecialidadEnConsulta = null; // Limpiar también la especialidad
+                        office.EspecialidadEnConsulta = null;
                     }
                 }
             }
@@ -122,7 +185,6 @@ namespace PY02.ViewModels {
             if (pacientesAdicionales != null) { pacientesParaReasignar.AddRange(pacientesAdicionales); }
 
             foreach (var office in Consultorios.Where(o => o.Open)) {
-                // Extraemos el paciente real de los objetos PatientInQueue
                 pacientesParaReasignar.AddRange(office.PatientQueue.Select(pq => pq.Patient));
                 if (office.PacienteEnConsulta != null) { pacientesParaReasignar.Add(office.PacienteEnConsulta); }
                 office.PatientQueue.Clear();
@@ -153,8 +215,6 @@ namespace PY02.ViewModels {
                 var consultorio = kvp.Key;
                 var listaPacientes = kvp.Value;
                 foreach (var paciente in listaPacientes) {
-                    // *** CAMBIO CLAVE ***
-                    // Creamos el objeto PatientInQueue con la especialidad correcta para este consultorio.
                     var especialidadRelevante = GetPrioritizedSpecialtyForOffice(paciente, consultorio);
                     consultorio.PatientQueue.Add(new PacientQueue(paciente, especialidadRelevante));
                     pacientesAsignados.Add(paciente);
@@ -170,8 +230,6 @@ namespace PY02.ViewModels {
         private PacienteEspecialidad GetPrioritizedSpecialtyForOffice(Patient patient, Office office) {
             return patient.Especialidades.Where(e => office.Specialties.Contains(e.NombreEspecialidad)).OrderByDescending(e => e.Prioridad).ThenBy(e => Time.GetTime(e.NombreEspecialidad)).First();
         }
-
-        // --- MÉTODOS DE GESTIÓN (REFORMATEADOS PARA LEGIBILIDAD) ---
 
         private void AgregarConsultorio() {
             if (Consultorios.Count < MaximoConsultorios) {
@@ -221,13 +279,9 @@ namespace PY02.ViewModels {
         }
 
         private void AsignarPacientesConAlgoritmo() {
-            // Tomar una copia de todos los pacientes en la lista de espera.
             var pacientesParaAsignar = new List<Patient>(ListaEsperaGeneral);
-            // Si no hay pacientes, no hagas nada.
             if (!pacientesParaAsignar.Any()) return;
-            // Limpia la lista de espera general, ya que todos serán movidos a las colas de los consultorios.
             ListaEsperaGeneral.Clear();
-            // Llama al método de reordenamiento con la lista completa de pacientes.
             ReordenarPacientes(pacientesParaAsignar);
         }
 
@@ -236,11 +290,14 @@ namespace PY02.ViewModels {
             _officeSubscriptions[office] = subscription;
         }
 
+
+
         private void UnsubscribeFromOfficeChanges(Office office) {
             if (_officeSubscriptions.TryGetValue(office, out var subscription)) {
                 subscription.Dispose();
                 _officeSubscriptions.Remove(office);
             }
         }
+
     }
 }
